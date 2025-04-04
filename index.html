@@ -12,16 +12,55 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <!-- Axios for HTTP requests -->
     <script src="https://cdn.jsdelivr.net/npm/axios@1.6.7/dist/axios.min.js"></script>
+    <!-- Monaco Editor CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.0/min/vs/loader.min.js"></script>
 </head>
 <body class="bg-gray-900 text-white font-sans">
-    <div id="root" class="min-h-screen flex items-center justify-center"></div>
+    <div id="root" class="min-h-screen"></div>
 
     <script type="text/babel">
-        // Controller Section
-        function ControllerSection() {
-            const [controller, setController] = React.useState('PID');
-            const [params, setParams] = React.useState({ kp: 1.0, ki: 0.05, kd: 0.2 });
+        // Sample Code Snippets
+        const codeSnippets = {
+            'PID Controller': `def pid_update(target, current, dt, kp=1.0, ki=0.05, kd=0.2):
+    error = target - current
+    integral = (integral + error * dt) if 'integral' in globals() else error * dt
+    derivative = (error - (prev_error if 'prev_error' in globals() else 
+   
+0)) / dt
+    globals()['prev_error'] = error
+    globals()['integral'] = integral
+    return kp * error + ki * integral + kd * derivative`,
+            'Linear Quadratic Regulator (LQR)': `# LQR requires a linear model
+def lqr_control(state, A, B, Q, R):
+    # Simplified LQR logic
+    K = compute_lqr_gain(A, B, Q, R)
+    return -K @ state`,
+            'Complementary Filter': `def complementary_filter(accel_data, gyro_data, dt, alpha=0.98):
+    angle = alpha * (angle + gyro_data * dt) + (1 - alpha) * accel_data
+    return angle`,
+            'Kalman Filter (KF)': `def kalman_filter(z, x_est, P, Q, R):
+    # Prediction
+    x_pred = F * x_est
+    P_pred = F * P * F.T + Q
+    # Update
+    K = P_pred * H.T * (H * P_pred * H.T + R)^(-1)
+    x_est = x_pred + K * (z - H * x_pred)
+    P = (I - K * H) * P_pred
+    return x_est`,
+            'A* Algorithm': `def a_star(start, goal, graph):
+    open_set = {start}
+    g_score = {start: 0}
+    f_score = {start: heuristic(start, goal)}
+    while open_set:
+        current = min(open_set, key=lambda x: f_score[x])
+        if current == goal:
+            return reconstruct_path(came_from, current)
+        # A* logic continues...
+    return None`,
+        };
 
+        // Controller Section
+        function ControllerSection({ onSelect }) {
             const controllers = [
                 'PID Controller', 'Linear Quadratic Regulator (LQR)', 'Linear Quadratic Gaussian (LQG)', 
                 'Model Predictive Control (MPC)', 'Feedback Linearization', 'Backstepping Controller', 
@@ -33,47 +72,18 @@
             ];
 
             return (
-                <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-md">
-                    <h2 className="text-2xl font-bold mb-4 text-blue-400">Controller</h2>
-                    <select value={controller} onChange={(e) => setController(e.target.value)}
-                        className="w-full p-2 mb-4 bg-gray-700 rounded text-white">
+                <div className="bg-gray-800 p-6 rounded-lg shadow-lg h-[150px] flex flex-col justify-center">
+                    <h2 className="text-xl font-bold mb-4 text-blue-400">Controller</h2>
+                    <select onChange={(e) => onSelect('controller', e.target.value)}
+                        className="w-full p-2 bg-gray-700 rounded text-white">
                         {controllers.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
-                    {controller === 'PID Controller' && (
-                        <div className="space-y-4">
-                            <div>
-                                <label className="block text-sm">Kp</label>
-                                <input type="range" min="0" max="5" step="0.1" value={params.kp}
-                                    onChange={(e) => setParams({ ...params, kp: parseFloat(e.target.value) })}
-                                    className="w-full accent-blue-500" />
-                                <span>{params.kp}</span>
-                            </div>
-                            <div>
-                                <label className="block text-sm">Ki</label>
-                                <input type="range" min="0" max="1" step="0.01" value={params.ki}
-                                    onChange={(e) => setParams({ ...params, ki: parseFloat(e.target.value) })}
-                                    className="w-full accent-blue-500" />
-                                <span>{params.ki}</span>
-                            </div>
-                            <div>
-                                <label className="block text-sm">Kd</label>
-                                <input type="range" min="0" max="1" step="0.01" value={params.kd}
-                                    onChange={(e) => setParams({ ...params, kd: parseFloat(e.target.value) })}
-                                    className="w-full accent-blue-500" />
-                                <span>{params.kd}</span>
-                            </div>
-                        </div>
-                    )}
-                    {/* Add more controller-specific inputs as needed */}
                 </div>
             );
         }
 
         // Filter Section
-        function FilterSection() {
-            const [filter, setFilter] = React.useState('Complementary Filter');
-            const [params, setParams] = React.useState([0.98]);
-
+        function FilterSection({ onSelect }) {
             const filters = [
                 'Kalman Filter (KF)', 'Extended Kalman Filter (EKF)', 'Unscented Kalman Filter (UKF)', 
                 'Complementary Filter', 'Particle Filter (PF)', 'Low-Pass Filter (LPF)', 
@@ -83,29 +93,18 @@
             ];
 
             return (
-                <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-md">
-                    <h2 className="text-2xl font-bold mb-4 text-green-400">Filter</h2>
-                    <select value={filter} onChange={(e) => setFilter(e.target.value)}
-                        className="w-full p-2 mb-4 bg-gray-700 rounded text-white">
+                <div className="bg-gray-800 p-6 rounded-lg shadow-lg h-[150px] flex flex-col justify-center">
+                    <h2 className="text-xl font-bold mb-4 text-green-400">Filter</h2>
+                    <select onChange={(e) => onSelect('filter', e.target.value)}
+                        className="w-full p-2 bg-gray-700 rounded text-white">
                         {filters.map(f => <option key={f} value={f}>{f}</option>)}
                     </select>
-                    {filter === 'Complementary Filter' && (
-                        <div>
-                            <label className="block text-sm">Alpha</label>
-                            <input type="range" min="0" max="1" step="0.01" value={params[0]}
-                                onChange={(e) => setParams([parseFloat(e.target.value)])}
-                                className="w-full accent-green-500" />
-                            <span>{params[0]}</span>
-                        </div>
-                    )}
-                    {/* Add more filter-specific inputs as needed */}
                 </div>
             );
         }
 
         // Algorithm Section
-        function AlgorithmSection() {
-            const [algo, setAlgo] = React.useState('A* Algorithm');
+        function AlgorithmSection({ onSelect }) {
             const algorithms = [
                 'PID Tuning (Ziegler-Nichols)', 'A* Algorithm', 'Dijkstra’s Algorithm', 
                 'RRT (Rapidly-exploring Random Tree)', 'SLAM', 'VFH (Vector Field Histogram)', 
@@ -118,40 +117,50 @@
             ];
 
             return (
-                <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-md">
-                    <h2 className="text-2xl font-bold mb-4 text-purple-400">Algorithm</h2>
-                    <select value={algo} onChange={(e) => setAlgo(e.target.value)}
-                        className="w-full p-2 mb-4 bg-gray-700 rounded text-white">
+                <div className="bg-gray-800 p-6 rounded-lg shadow-lg h-[150px] flex flex-col justify-center">
+                    <h2 className="text-xl font-bold mb-4 text-purple-400">Algorithm</h2>
+                    <select onChange={(e) => onSelect('algorithm', e.target.value)}
+                        className="w-full p-2 bg-gray-700 rounded text-white">
                         {algorithms.map(a => <option key={a} value={a}>{a}</option>)}
                     </select>
-                    {/* Add algo-specific inputs as needed */}
                 </div>
             );
         }
 
         // Main App
         function App() {
+            const [editorContent, setEditorContent] = React.useState(codeSnippets['PID Controller']);
             const [status, setStatus] = React.useState('Ready');
-            const controllerRef = React.useRef();
-            const filterRef = React.useRef();
-            const algoRef = React.useRef();
+            const editorRef = React.useRef(null);
+
+            React.useEffect(() => {
+                require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.0/min/vs' } });
+                require(['vs/editor/editor.main'], function() {
+                    editorRef.current = monaco.editor.create(document.getElementById('editor'), {
+                        value: editorContent,
+                        language: 'python',
+                        theme: 'vs-dark',
+                        automaticLayout: true
+                    });
+                    editorRef.current.onDidChangeModelContent(() => {
+                        setEditorContent(editorRef.current.getValue());
+                    });
+                });
+            }, []);
+
+            const handleSelect = (type, value) => {
+                const key = type === 'controller' ? value : 
+                           type === 'filter' ? value : value;
+                setEditorContent(codeSnippets[key] || `# No sample code available for ${key}\n# Edit here to implement`);
+                if (editorRef.current) {
+                    editorRef.current.setValue(codeSnippets[key] || `# No sample code available for ${key}\n# Edit here to implement`);
+                }
+            };
 
             const uploadCode = async () => {
-                const data = {
-                    controller_type: controllerRef.current.querySelector('select').value,
-                    controller_params: [
-                        parseFloat(controllerRef.current.querySelectorAll('input')[0]?.value || 0),
-                        parseFloat(controllerRef.current.querySelectorAll('input')[1]?.value || 0),
-                        parseFloat(controllerRef.current.querySelectorAll('input')[2]?.value || 0)
-                    ],
-                    filter_type: filterRef.current.querySelector('select').value,
-                    filter_params: [parseFloat(filterRef.current.querySelector('input')?.value || 0)],
-                    algo_type: algoRef.current.querySelector('select').value,
-                    algo_params: []
-                };
                 setStatus('Uploading...');
                 try {
-                    const response = await axios.post('http://192.168.4.1:8080/upload', JSON.stringify(data));
+                    const response = await axios.post('http://192.168.4.1:8080/upload', editorContent);
                     setStatus(response.data);
                 } catch (error) {
                     setStatus(`Error: ${error.message}`);
@@ -161,10 +170,15 @@
             return (
                 <div className="container mx-auto p-6">
                     <h1 className="text-4xl font-bold text-center mb-8 text-yellow-400">AIRM Drone Playground</h1>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div ref={controllerRef}><ControllerSection /></div>
-                        <div ref={filterRef}><FilterSection /></div>
-                        <div ref={algoRef}><AlgorithmSection /></div>
+                    <div className="flex flex-col md:flex-row gap-6">
+                        <div className="md:w-2/3">
+                            <div id="editor" className="h-[450px] border border-gray-700 rounded-lg"></div>
+                        </div>
+                        <div className="md:w-1/3 space-y-6">
+                            <ControllerSection onSelect={handleSelect} />
+                            <FilterSection onSelect={handleSelect} />
+                            <AlgorithmSection onSelect={handleSelect} />
+                        </div>
                     </div>
                     <div className="text-center mt-8">
                         <button onClick={uploadCode}
