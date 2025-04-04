@@ -3,101 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <title>AIRM Drone Playground</title>
-    <script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.development.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React and ReactDOM CDN -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Axios for HTTP requests -->
     <script src="https://cdn.jsdelivr.net/npm/axios@1.6.7/dist/axios.min.js"></script>
 </head>
 <body class="bg-gray-900 text-white font-sans">
     <div id="root" class="min-h-screen flex items-center justify-center"></div>
 
     <script type="text/babel">
-        const ControllerSection = () => {
+        // Controller Section
+        function ControllerSection() {
             const [controller, setController] = React.useState('PID');
             const [params, setParams] = React.useState({ kp: 1.0, ki: 0.05, kd: 0.2 });
 
-            const controllers = ['PID', 'LQR', 'MPC', 'SMC', 'INDI', 'Adaptive', 'Fuzzy', 'RL'];
+            const controllers = [
+                'PID Controller', 'Linear Quadratic Regulator (LQR)', 'Linear Quadratic Gaussian (LQG)', 
+                'Model Predictive Control (MPC)', 'Feedback Linearization', 'Backstepping Controller', 
+                'Sliding Mode Controller (SMC)', 'H-Infinity Controller', 'Incremental Nonlinear Dynamic Inversion (INDI)', 
+                'Adaptive Control', 'Fuzzy Logic Controller (FLC)', 'Neural Network-Based Controller', 
+                'Reinforcement Learning (RL)', 'Gain Scheduling', 'Proportional (P) Controller', 
+                'Dynamic Inversion', 'Robust Control', 'State Feedback Controller', 
+                'Optimal Control', 'Game Theory-Based Controller'
+            ];
+
             return (
-                <div class="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-md">
-                    <h2 class="text-2xl font-bold mb-4 text-blue-400">Controller</h2>
+                <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-md">
+                    <h2 className="text-2xl font-bold mb-4 text-blue-400">Controller</h2>
                     <select value={controller} onChange={(e) => setController(e.target.value)}
-                        class="w-full p-2 mb-4 bg-gray-700 rounded text-white">
+                        className="w-full p-2 mb-4 bg-gray-700 rounded text-white">
                         {controllers.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
-                    {controller === 'PID' && (
-                        <div class="space-y-4">
+                    {controller === 'PID Controller' && (
+                        <div className="space-y-4">
                             <div>
-                                <label class="block text-sm">Kp</label>
+                                <label className="block text-sm">Kp</label>
                                 <input type="range" min="0" max="5" step="0.1" value={params.kp}
                                     onChange={(e) => setParams({ ...params, kp: parseFloat(e.target.value) })}
-                                    class="w-full accent-blue-500" />
+                                    className="w-full accent-blue-500" />
                                 <span>{params.kp}</span>
                             </div>
                             <div>
-                                <label class="block text-sm">Ki</label>
+                                <label className="block text-sm">Ki</label>
                                 <input type="range" min="0" max="1" step="0.01" value={params.ki}
                                     onChange={(e) => setParams({ ...params, ki: parseFloat(e.target.value) })}
-                                    class="w-full accent-blue-500" />
+                                    className="w-full accent-blue-500" />
                                 <span>{params.ki}</span>
                             </div>
                             <div>
-                                <label class="block text-sm">Kd</label>
+                                <label className="block text-sm">Kd</label>
                                 <input type="range" min="0" max="1" step="0.01" value={params.kd}
                                     onChange={(e) => setParams({ ...params, kd: parseFloat(e.target.value) })}
-                                    class="w-full accent-blue-500" />
+                                    className="w-full accent-blue-500" />
                                 <span>{params.kd}</span>
                             </div>
                         </div>
                     )}
-                    {/* Add more controller-specific inputs here */}
+                    {/* Add more controller-specific inputs as needed */}
                 </div>
             );
-        };
+        }
 
-        const FilterSection = () => {
-            const [filter, setFilter] = React.useState('Complementary');
+        // Filter Section
+        function FilterSection() {
+            const [filter, setFilter] = React.useState('Complementary Filter');
             const [params, setParams] = React.useState([0.98]);
 
-            const filters = ['Kalman', 'EKF', 'UKF', 'Complementary', 'Particle', 'Low-Pass'];
+            const filters = [
+                'Kalman Filter (KF)', 'Extended Kalman Filter (EKF)', 'Unscented Kalman Filter (UKF)', 
+                'Complementary Filter', 'Particle Filter (PF)', 'Low-Pass Filter (LPF)', 
+                'High-Pass Filter (HPF)', 'Band-Pass Filter (BPF)', 'Madgwick Filter', 
+                'Mahony Filter', 'Median Filter', 'Butterworth Filter', 
+                'Notch Filter', 'Gaussian Filter', 'Savitzky-Golay Filter'
+            ];
+
             return (
-                <div class="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-md">
-                    <h2 class="text-2xl font-bold mb-4 text-green-400">Filter</h2>
+                <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-md">
+                    <h2 className="text-2xl font-bold mb-4 text-green-400">Filter</h2>
                     <select value={filter} onChange={(e) => setFilter(e.target.value)}
-                        class="w-full p-2 mb-4 bg-gray-700 rounded text-white">
+                        className="w-full p-2 mb-4 bg-gray-700 rounded text-white">
                         {filters.map(f => <option key={f} value={f}>{f}</option>)}
                     </select>
-                    {filter === 'Complementary' && (
+                    {filter === 'Complementary Filter' && (
                         <div>
-                            <label class="block text-sm">Alpha</label>
+                            <label className="block text-sm">Alpha</label>
                             <input type="range" min="0" max="1" step="0.01" value={params[0]}
                                 onChange={(e) => setParams([parseFloat(e.target.value)])}
-                                class="w-full accent-green-500" />
+                                className="w-full accent-green-500" />
                             <span>{params[0]}</span>
                         </div>
                     )}
-                    {/* Add more filter-specific inputs here */}
+                    {/* Add more filter-specific inputs as needed */}
                 </div>
             );
-        };
+        }
 
-        const AlgorithmSection = () => {
-            const [algo, setAlgo] = React.useState('AStar');
-            const [params, setParams] = React.useState([]);
+        // Algorithm Section
+        function AlgorithmSection() {
+            const [algo, setAlgo] = React.useState('A* Algorithm');
+            const algorithms = [
+                'PID Tuning (Ziegler-Nichols)', 'A* Algorithm', 'Dijkstra’s Algorithm', 
+                'RRT (Rapidly-exploring Random Tree)', 'SLAM', 'VFH (Vector Field Histogram)', 
+                'Particle Swarm Optimization (PSO)', 'Genetic Algorithm (GA)', 
+                'Ant Colony Optimization (ACO)', 'Q-Learning', 'Deep Q-Network (DQN)', 
+                'Convolutional Neural Networks (CNN)', 'YOLO (You Only Look Once)', 
+                'Faster R-CNN', 'Monte Carlo Localization', 'Graph-Based Path Planning', 
+                'Kalman Smoother', 'Dynamic Programming', 'K-Means Clustering', 
+                'Optical Flow'
+            ];
 
-            const algorithms = ['AStar', 'Dijkstra', 'RRT', 'SLAM', 'VFH', 'PSO'];
             return (
-                <div class="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-md">
-                    <h2 class="text-2xl font-bold mb-4 text-purple-400">Algorithm</h2>
+                <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-md">
+                    <h2 className="text-2xl font-bold mb-4 text-purple-400">Algorithm</h2>
                     <select value={algo} onChange={(e) => setAlgo(e.target.value)}
-                        class="w-full p-2 mb-4 bg-gray-700 rounded text-white">
+                        className="w-full p-2 mb-4 bg-gray-700 rounded text-white">
                         {algorithms.map(a => <option key={a} value={a}>{a}</option>)}
                     </select>
-                    {/* Add algo-specific inputs here */}
+                    {/* Add algo-specific inputs as needed */}
                 </div>
             );
-        };
+        }
 
-        const App = () => {
+        // Main App
+        function App() {
             const [status, setStatus] = React.useState('Ready');
             const controllerRef = React.useRef();
             const filterRef = React.useRef();
@@ -106,15 +139,19 @@
             const uploadCode = async () => {
                 const data = {
                     controller_type: controllerRef.current.querySelector('select').value,
-                    controller_params: Object.values(JSON.parse(JSON.stringify(controllerRef.current.querySelectorAll('input')).replace(/.*value="([^"]*)".*/g, '"$1"'))),
+                    controller_params: [
+                        parseFloat(controllerRef.current.querySelectorAll('input')[0]?.value || 0),
+                        parseFloat(controllerRef.current.querySelectorAll('input')[1]?.value || 0),
+                        parseFloat(controllerRef.current.querySelectorAll('input')[2]?.value || 0)
+                    ],
                     filter_type: filterRef.current.querySelector('select').value,
-                    filter_params: [parseFloat(filterRef.current.querySelector('input').value)],
+                    filter_params: [parseFloat(filterRef.current.querySelector('input')?.value || 0)],
                     algo_type: algoRef.current.querySelector('select').value,
                     algo_params: []
                 };
                 setStatus('Uploading...');
                 try {
-                    const response = await axios.post('http://192.168.4.1:8080/upload', data);
+                    const response = await axios.post('http://192.168.4.1:8080/upload', JSON.stringify(data));
                     setStatus(response.data);
                 } catch (error) {
                     setStatus(`Error: ${error.message}`);
@@ -122,24 +159,25 @@
             };
 
             return (
-                <div class="container mx-auto p-6">
-                    <h1 class="text-4xl font-bold text-center mb-8 text-yellow-400">AIRM Drone Playground</h1>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="container mx-auto p-6">
+                    <h1 className="text-4xl font-bold text-center mb-8 text-yellow-400">AIRM Drone Playground</h1>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div ref={controllerRef}><ControllerSection /></div>
                         <div ref={filterRef}><FilterSection /></div>
                         <div ref={algoRef}><AlgorithmSection /></div>
                     </div>
-                    <div class="text-center mt-8">
+                    <div className="text-center mt-8">
                         <button onClick={uploadCode}
-                            class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full">
+                            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full">
                             Upload to Drone
                         </button>
-                        <p class="mt-4 text-lg">{status}</p>
+                        <p className="mt-4 text-lg">{status}</p>
                     </div>
                 </div>
             );
-        };
+        }
 
+        // Render
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
