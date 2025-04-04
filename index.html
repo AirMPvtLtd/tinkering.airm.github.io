@@ -28,6 +28,13 @@
             0% { background-position: 0 0; }
             100% { background-position: 100% 0; }
         }
+        @keyframes move {
+            0% { transform: translate(0, 0); }
+            25% { transform: translate(50px, -50px); }
+            50% { transform: translate(100px, 0); }
+            75% { transform: translate(50px, 50px); }
+            100% { transform: translate(0, 0); }
+        }
         .futuristic-border {
             border: 2px solid #00FFFF;
             box-shadow: 0 0 10px #00FFFF;
@@ -183,10 +190,38 @@ def lqr_control(state, A, B, Q, R):
             );
         }
 
+        // Simulation Window
+        function SimulationWindow({ selectedType, selectedValue }) {
+            const [position, setPosition] = React.useState({ x: 0, y: 0 });
+
+            React.useEffect(() => {
+                if (selectedType === 'controller' && selectedValue === 'PID Controller') {
+                    setPosition({ x: 50, y: -50 });
+                } else if (selectedType === 'algorithm' && selectedValue === 'A* Algorithm') {
+                    setPosition({ x: 100, y: 0 });
+                } else {
+                    setPosition({ x: 0, y: 0 });
+                }
+            }, [selectedType, selectedValue]);
+
+            return (
+                <div className="bg-gray-900 p-6 futuristic-border h-[450px] flex flex-col justify-center items-center scan-effect">
+                    <h2 className="text-xl font-bold mb-4 text-[#00FFFF]">SIMULATION GRID</h2>
+                    <div className="relative w-full h-full">
+                        <div className="absolute w-6 h-6 bg-[#00FF00] rounded-full animate-[move_4s_linear_infinite]"
+                             style={{ transform: `translate(${position.x}px, ${position.y}px)` }}></div>
+                        <p className="text-[#00FF00] mt-4 text-center">TARGET: {selectedValue || 'NONE'}</p>
+                    </div>
+                </div>
+            );
+        }
+
         // Main App
         function App() {
             const [editorContent, setEditorContent] = React.useState(codeSnippets['PID Controller']);
             const [status, setStatus] = React.useState('Ready');
+            const [selectedType, setSelectedType] = React.useState('controller');
+            const [selectedValue, setSelectedValue] = React.useState('PID Controller');
             const editorRef = React.useRef(null);
 
             React.useEffect(() => {
@@ -215,6 +250,8 @@ def lqr_control(state, A, B, Q, R):
                 if (editorRef.current) {
                     editorRef.current.setValue(codeSnippets[key] || `# [ERROR 404] NO CODE DETECTED FOR ${key}\n# DEPLOY CUSTOM PROTOCOL HERE`);
                 }
+                setSelectedType(type);
+                setSelectedValue(value);
             };
 
             const uploadCode = async () => {
@@ -236,12 +273,13 @@ def lqr_control(state, A, B, Q, R):
                     </h1>
                     <div className="flex flex-col md:flex-row gap-6">
                         <div className="md:w-2/3">
-                            <div id="editor" className="h-[450px] futuristic-border rounded-lg scan-effect"></div>
+                            <div id="editor" className="h-[900px] futuristic-border rounded-lg scan-effect"></div>
                         </div>
                         <div className="md:w-1/3 space-y-6">
                             <ControllerSection onSelect={handleSelect} />
                             <FilterSection onSelect={handleSelect} />
                             <AlgorithmSection onSelect={handleSelect} />
+                            <SimulationWindow selectedType={selectedType} selectedValue={selectedValue} />
                         </div>
                     </div>
                     <div className="flex justify-center gap-6 mt-6">
